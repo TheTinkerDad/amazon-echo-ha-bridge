@@ -50,19 +50,20 @@ public class DeviceResource {
 
     @RequestMapping(value = "/{lightId}", method = RequestMethod.PUT, produces = "application/json", headers = "Accept=application/json")
     public ResponseEntity<DeviceDescriptor> updateDevice(@PathVariable("lightId") String id, @RequestBody Device device) {
-        DeviceDescriptor deviceEntry = deviceRepository.findOne(id);
-        if(deviceEntry == null){
+        Optional<DeviceDescriptor> deviceEntry = deviceRepository.findById(id);
+        if(!deviceEntry.isPresent()){
             return new ResponseEntity<>(null, null, HttpStatus.NOT_FOUND);
         }
 
-        deviceEntry.setName(device.getName());
-        deviceEntry.setDeviceType(device.getDeviceType());
-        deviceEntry.setOnUrl(device.getOnUrl());
-        deviceEntry.setOffUrl(device.getOffUrl());
+        DeviceDescriptor desc = deviceEntry.get();
+        desc.setName(device.getName());
+        desc.setDeviceType(device.getDeviceType());
+        desc.setOnUrl(device.getOnUrl());
+        desc.setOffUrl(device.getOffUrl());
 
-        deviceRepository.save(deviceEntry);
+        deviceRepository.save(desc);
 
-        return new ResponseEntity<>(deviceEntry, null, HttpStatus.OK);
+        return new ResponseEntity<>(desc, null, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
@@ -74,20 +75,20 @@ public class DeviceResource {
 
     @RequestMapping(value = "/{lightId}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<DeviceDescriptor> findByDevicId(@PathVariable("lightId") String id){
-        DeviceDescriptor descriptor = deviceRepository.findOne(id);
-        if(descriptor == null){
+        Optional<DeviceDescriptor> descriptor = deviceRepository.findById(id);
+        if(!descriptor.isPresent()){
             return new ResponseEntity<>(null, null, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(descriptor, null, HttpStatus.OK);
+        return new ResponseEntity<>(descriptor.get(), null, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{lightId}", method = RequestMethod.DELETE, produces = "application/json")
     public ResponseEntity<String> deleteDeviceById(@PathVariable("lightId") String id){
-        DeviceDescriptor deleted = deviceRepository.findOne(id);
-        if(deleted == null){
+        Optional<DeviceDescriptor> deleted = deviceRepository.findById(id);
+        if(!deleted.isPresent()){
             return new ResponseEntity<>(null, null, HttpStatus.NOT_FOUND);
         }
-        deviceRepository.delete(deleted);
+        deviceRepository.delete(deleted.get());
         return new ResponseEntity<>(null, null, HttpStatus.NO_CONTENT);
     }
 

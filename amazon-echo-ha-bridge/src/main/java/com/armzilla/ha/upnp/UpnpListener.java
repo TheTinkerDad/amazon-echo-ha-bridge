@@ -1,6 +1,7 @@
 package com.armzilla.ha.upnp;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -19,7 +20,7 @@ import org.apache.http.conn.util.*;
  */
 @Component
 public class UpnpListener {
-	private Logger log = Logger.getLogger(UpnpListener.class);
+	private Logger log = LoggerFactory.getLogger(UpnpListener.class);
 	private static final int UPNP_DISCOVERY_PORT = 1900;
 	private static final String UPNP_MULTICAST_ADDRESS = "239.255.255.250";
 

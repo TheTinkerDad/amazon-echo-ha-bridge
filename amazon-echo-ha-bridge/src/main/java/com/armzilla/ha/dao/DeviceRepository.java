@@ -6,13 +6,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by arm on 4/13/15.
  */
 public interface DeviceRepository extends ElasticsearchRepository<DeviceDescriptor, String> {
+	
     Page<DeviceDescriptor> findByDeviceType(String type, Pageable request);
     List<DeviceDescriptor> findAll();
-    DeviceDescriptor findOne(String id);
+    Optional<DeviceDescriptor> findById(String id);
 
 }

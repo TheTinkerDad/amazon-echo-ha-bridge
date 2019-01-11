@@ -13,3 +13,4 @@ data
 .project
 .classpath
 .settings
+.recommenders

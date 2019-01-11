@@ -1,12 +1,12 @@
 package com.armzilla.ha.hue;
 
-import com.armzilla.ha.api.hue.DeviceResponse;
-import com.armzilla.ha.api.hue.DeviceState;
-import com.armzilla.ha.api.hue.HueApiResponse;
-import com.armzilla.ha.dao.*;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpEntity;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -17,7 +17,8 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -30,12 +31,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import com.armzilla.ha.api.hue.DeviceResponse;
+import com.armzilla.ha.api.hue.DeviceState;
+import com.armzilla.ha.api.hue.HueApiResponse;
+import com.armzilla.ha.dao.DeviceDescriptor;
+import com.armzilla.ha.dao.DeviceRepository;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Created by arm on 4/12/15.
@@ -43,7 +46,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/api")
 public class HueMulator {
-    private static final Logger log = Logger.getLogger(HueMulator.class);
+    private static final Logger log = LoggerFactory.getLogger(HueMulator.class);
     private static final String INTENSITY_PERCENT = "${intensity.percent}";
     private static final String INTENSITY_BYTE = "${intensity.byte}";
     @Autowired
@@ -108,13 +111,14 @@ public class HueMulator {
     @RequestMapping(value = "/{userId}/lights/{lightId}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<DeviceResponse> getLigth(@PathVariable(value = "lightId") String lightId, @PathVariable(value = "userId") String userId, HttpServletRequest request) {
         log.info("hue light requested: " + lightId + " from " + request.getRemoteAddr());
-        DeviceDescriptor device = repository.findOne(lightId);
-        if (device == null) {
+        Optional<DeviceDescriptor> device = repository.findById(lightId);
+        if (!device.isPresent()) {
             return new ResponseEntity<>(null, null, HttpStatus.NOT_FOUND);
-        } else {
-            log.info("found device named: " + device.getName());
         }
-        DeviceResponse lightResponse = DeviceResponse.createResponse(device.getName(), device.getId());
+
+        DeviceDescriptor desc = device.get();
+        log.info("found device named: " + desc.getName());
+        DeviceResponse lightResponse = DeviceResponse.createResponse(desc.getName(), desc.getId());
 
         HttpHeaders headerMap = new HttpHeaders();
 
@@ -139,26 +143,27 @@ public class HueMulator {
             return new ResponseEntity<>(null, null, HttpStatus.BAD_REQUEST);
         }
 
-        DeviceDescriptor device = repository.findOne(lightId);
-        if (device == null) {
+        Optional<DeviceDescriptor> device = repository.findById(lightId);
+        if (!device.isPresent()) {
             return new ResponseEntity<>(null, null, HttpStatus.NOT_FOUND);
         }
 
+        DeviceDescriptor desc = device.get();
         String responseString;
         String url;
         if (state.isOn()) {
             responseString = "[{\"success\":{\"/lights/" + lightId + "/state/on\":true}}]";
-            url = device.getOnUrl();
+            url = desc.getOnUrl();
         } else {
             responseString = "[{\"success\":{\"/lights/" + lightId + "/state/on\":false}}]";
-            url = device.getOffUrl();
+            url = desc.getOffUrl();
         }
 
         //quick template
         url = replaceIntensityValue(url, state.getBri());
-        String body = replaceIntensityValue(device.getContentBody(), state.getBri());
+        String body = replaceIntensityValue(desc.getContentBody(), state.getBri());
         //make call
-        if(!doHttpRequest(url, device.getHttpVerb(), device.getContentType(), body)){
+        if(!doHttpRequest(url, desc.getHttpVerb(), desc.getContentType(), body)){
             return new ResponseEntity<>(null, null, HttpStatus.SERVICE_UNAVAILABLE);
         }
 

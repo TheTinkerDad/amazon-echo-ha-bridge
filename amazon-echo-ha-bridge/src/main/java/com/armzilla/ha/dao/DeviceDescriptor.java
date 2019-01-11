@@ -8,6 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
  */
 @Document(indexName = "device", type = "devicedescriptor", shards = 1, replicas = 0, refreshInterval = "-1")
 public class DeviceDescriptor{
+	
     @Id
     private String id;
     private String name;
