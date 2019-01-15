@@ -4,8 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +43,7 @@ public class UpnpListener {
 	@Autowired
 	private ApplicationContext applicationContext;
 
-	@Scheduled(fixedDelay = Integer.MAX_VALUE)
+	@EventListener(ApplicationReadyEvent.class) // Start listening when the application finished booting
 	public void startListening(){
 
 		if (disable)  {
@@ -50,28 +52,28 @@ public class UpnpListener {
 		
 		log.info("Starting UPNP Discovery Listener");
 
-		try (DatagramSocket responseSocket = new DatagramSocket(upnpResponsePort);
-				MulticastSocket upnpMulticastSocket  = new MulticastSocket(UPNP_DISCOVERY_PORT);) {
+		try (DatagramSocket responseSocket = new DatagramSocket(upnpResponsePort); 
+			 MulticastSocket upnpMulticastSocket  = new MulticastSocket(UPNP_DISCOVERY_PORT)) {
+			
 			InetSocketAddress socketAddress = new InetSocketAddress(UPNP_MULTICAST_ADDRESS, UPNP_DISCOVERY_PORT);
 			Enumeration<NetworkInterface> ifs =	NetworkInterface.getNetworkInterfaces();
 
 			while (ifs.hasMoreElements()) {
 				NetworkInterface xface = ifs.nextElement();
 				Enumeration<InetAddress> addrs = xface.getInetAddresses();
-				String name = xface.getName();
-				int IPsPerNic = 0;
+				String name = xface.getName() + " (" + xface.getDisplayName() + ")";
+				String assignedIPv4Address = null;
 
 				while (addrs.hasMoreElements()) {
 					InetAddress addr = addrs.nextElement();
-					log.debug(name + " ... has addr " + addr);
-					if (InetAddressUtils.isIPv4Address(addr.getHostAddress())) {
-						IPsPerNic++;
+					if (InetAddressUtils.isIPv4Address(addr.getHostAddress()) && !addr.isLoopbackAddress()) {
+						log.debug(name + " has IPv4 address of " + addr);						
+						assignedIPv4Address = addr.toString();
 					}
 				}
-				log.debug("Checking " + name + " to our interface set");
-				if (IPsPerNic > 0) {
+				if (assignedIPv4Address != null) {
 					upnpMulticastSocket.joinGroup(socketAddress, xface);
-					log.debug("Adding " + name + " to our interface set");
+					log.info("Added network IF " + name + " using IP address of " + assignedIPv4Address + " to multicast interface set.");
 				}
 			}
 

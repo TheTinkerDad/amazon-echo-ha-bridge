@@ -10,6 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
@@ -17,8 +18,7 @@ import java.util.Set;
 /**
  * Created by arm on 9/12/15.
  */
-@Component
-
+@Configuration
 public class TomcatConnectorBean {
     
 	private final static Logger logger = LoggerFactory.getLogger(TomcatConnectorBean.class);
@@ -30,7 +30,7 @@ public class TomcatConnectorBean {
     private int portCount;
     
     @Bean
-    public WebServerFactory servletContainer() {
+    public TomcatServletWebServerFactory servletContainer() {
     	
     	TomcatServletWebServerFactory tomcat = null;
         for(int i = 0; i < portCount; i ++) {
@@ -38,7 +38,7 @@ public class TomcatConnectorBean {
                 tomcat = new TomcatServletWebServerFactory(portBase + i);
             }else{
                 tomcat.addAdditionalTomcatConnectors(createConnector(portBase + i));
-                logger.info("Created additional Tomcat on port " + (portBase + i));
+                logger.debug("Created additional Tomcat on port " + (portBase + i));
             }
         }
         return tomcat;
@@ -47,7 +47,7 @@ public class TomcatConnectorBean {
     private Connector createConnector(int portNumber) {
     	
         Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
-        Http11NioProtocol protocol = (Http11NioProtocol) connector.getProtocolHandler(); // ???
+        //Http11NioProtocol protocol = (Http11NioProtocol) connector.getProtocolHandler(); // ???
         connector.setScheme("http");
         connector.setPort(portNumber);
         return connector;
