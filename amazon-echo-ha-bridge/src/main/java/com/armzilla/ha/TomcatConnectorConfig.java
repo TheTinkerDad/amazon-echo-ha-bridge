@@ -19,9 +19,9 @@ import java.util.Set;
  * Created by arm on 9/12/15.
  */
 @Configuration
-public class TomcatConnectorBean {
+public class TomcatConnectorConfig {
     
-	private final static Logger logger = LoggerFactory.getLogger(TomcatConnectorBean.class);
+	private final static Logger logger = LoggerFactory.getLogger(TomcatConnectorConfig.class);
 	
 	@Value("${emulator.portbase}")
     private int portBase;
