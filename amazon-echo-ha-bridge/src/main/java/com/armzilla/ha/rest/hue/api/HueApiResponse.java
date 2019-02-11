@@ -1,8 +1,8 @@
-package com.armzilla.ha.api.hue;
-
-import com.armzilla.ha.api.hue.DeviceResponse;
+package com.armzilla.ha.rest.hue.api;
 
 import java.util.Map;
+
+import com.armzilla.ha.rest.hue.api.DeviceResponse;
 
 /**
  * Created by arm on 4/14/15.

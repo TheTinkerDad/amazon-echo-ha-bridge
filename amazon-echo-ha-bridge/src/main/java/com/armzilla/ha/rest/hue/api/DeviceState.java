@@ -1,4 +1,4 @@
-package com.armzilla.ha.api.hue;
+package com.armzilla.ha.rest.hue.api;
 
 import java.util.List;
 

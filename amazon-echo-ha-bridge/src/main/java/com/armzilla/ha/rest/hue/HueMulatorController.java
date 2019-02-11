@@ -1,4 +1,4 @@
-package com.armzilla.ha.hue;
+package com.armzilla.ha.rest.hue;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,11 +32,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.armzilla.ha.api.hue.DeviceResponse;
-import com.armzilla.ha.api.hue.DeviceState;
-import com.armzilla.ha.api.hue.HueApiResponse;
 import com.armzilla.ha.dao.DeviceDescriptor;
 import com.armzilla.ha.dao.DeviceRepository;
+import com.armzilla.ha.rest.hue.api.DeviceResponse;
+import com.armzilla.ha.rest.hue.api.DeviceState;
+import com.armzilla.ha.rest.hue.api.HueApiResponse;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -45,21 +45,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Controller
 @RequestMapping("/api")
-public class HueMulator {
-    private static final Logger log = LoggerFactory.getLogger(HueMulator.class);
+public class HueMulatorController {
+    private static final Logger log = LoggerFactory.getLogger(HueMulatorController.class);
+    
     private static final String INTENSITY_PERCENT = "${intensity.percent}";
+    
     private static final String INTENSITY_BYTE = "${intensity.byte}";
+    
     @Autowired
     private DeviceRepository repository;
+    
     private HttpClient httpClient;
+    
     private ObjectMapper mapper;
 
     @Value("${emulator.portbase}")
     private int portBase;
+    
     @Value("${emulator.portcount}")
     private int portCount;
 
-    public HueMulator(){
+    public HueMulatorController(){
         httpClient = HttpClients.createDefault(); //patched for now, moving away from HueMulator doing work
         mapper = new ObjectMapper(); //work around Echo incorrect content type and breaking mapping. Map manually
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

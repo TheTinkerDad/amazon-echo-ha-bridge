@@ -17,8 +17,9 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Controller
 @RequestMapping("/upnp")
-public class UpnpSettingsResource {
-    private Logger log = LoggerFactory.getLogger(UpnpSettingsResource.class);
+public class UpnpSettingsController {
+    private Logger log = LoggerFactory.getLogger(UpnpSettingsController.class);
+    
         @Value("${emulator.portcount}")
         private int portCount;
 
@@ -68,7 +69,6 @@ public class UpnpSettingsResource {
                 "</iconList>\n" +
                 "</device>\n" +
                 "</root>\n";
-
 
         @RequestMapping(value = "/{deviceId}/setup.xml", method = RequestMethod.GET, produces = "application/xml")
                 public ResponseEntity<String> getUpnpConfiguration(@PathVariable(value="deviceId") String deviceId, HttpServletRequest request){

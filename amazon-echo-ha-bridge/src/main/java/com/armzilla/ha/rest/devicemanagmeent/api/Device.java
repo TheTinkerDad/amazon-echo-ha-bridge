@@ -1,4 +1,4 @@
-package com.armzilla.ha.api;
+package com.armzilla.ha.rest.devicemanagmeent.api;
 
 /**
  * Created by arm on 4/13/15.
