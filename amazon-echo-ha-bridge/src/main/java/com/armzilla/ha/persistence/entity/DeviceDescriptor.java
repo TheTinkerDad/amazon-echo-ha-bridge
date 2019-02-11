@@ -1,22 +1,40 @@
-package com.armzilla.ha.dao;
+package com.armzilla.ha.persistence.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * Created by arm on 4/13/15.
  */
-@Document(indexName = "device", type = "devicedescriptor", shards = 1, replicas = 0, refreshInterval = "-1")
+@Entity
+@Table(name = "devices")
 public class DeviceDescriptor{
 	
     @Id
+    @Column(length = 36)
     private String id;
+    
+    @Column
     private String name;
+    
+    @Column
     private String deviceType;
+    
+    @Column
     private String offUrl;
+    
+    @Column
     private String onUrl;
+    
+    @Column
     private String httpVerb;
+    
+    @Column
     private String contentType;
+    
+    @Column
     private String contentBody;
 
     public String getHttpVerb() {

@@ -20,8 +20,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.armzilla.ha.dao.DeviceDescriptor;
-import com.armzilla.ha.dao.DeviceRepository;
+import com.armzilla.ha.persistence.DeviceRepository;
+import com.armzilla.ha.persistence.entity.DeviceDescriptor;
+import com.armzilla.ha.rest.RestConstants;
 import com.armzilla.ha.rest.devicemanagmeent.api.Device;
 
 /**
@@ -34,14 +35,12 @@ import com.armzilla.ha.rest.devicemanagmeent.api.Device;
 @RequestMapping("/api/devices")
 public class DeviceManagerController {
 
-    private static final String APPLICATION_JSON = "application/json";
-
 	private static final Set<String> supportedVerbs = new HashSet<>(Arrays.asList("get", "put", "post"));
 
     @Autowired
     private DeviceRepository deviceRepository;
 
-    @PostMapping(produces = APPLICATION_JSON, consumes = APPLICATION_JSON)
+    @PostMapping(produces = RestConstants.APPLICATION_JSON, consumes = RestConstants.APPLICATION_JSON)
     public ResponseEntity<DeviceDescriptor> createDevice(@RequestBody Device device) {
     	
     	//TODO: add more validation like content type
@@ -66,7 +65,7 @@ public class DeviceManagerController {
         return new ResponseEntity<>(deviceEntry, null, HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/{lightId}", produces = APPLICATION_JSON, consumes = APPLICATION_JSON)
+    @PutMapping(value = "/{lightId}", produces = RestConstants.APPLICATION_JSON, consumes = RestConstants.APPLICATION_JSON)
     public ResponseEntity<DeviceDescriptor> updateDevice(@PathVariable("lightId") String id, @RequestBody Device device) {
         
     	Optional<DeviceDescriptor> deviceEntry = deviceRepository.findById(id);
@@ -85,7 +84,7 @@ public class DeviceManagerController {
         return new ResponseEntity<>(desc, null, HttpStatus.OK);
     }
 
-    @GetMapping(produces = APPLICATION_JSON)
+    @GetMapping(produces = RestConstants.APPLICATION_JSON)
     public ResponseEntity<List<DeviceDescriptor>> findAllDevices() {
     	
         List<DeviceDescriptor> deviceList = deviceRepository.findAll();
@@ -93,7 +92,7 @@ public class DeviceManagerController {
         return new ResponseEntity<>(plainList, null, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{lightId}", produces = APPLICATION_JSON)
+    @GetMapping(value = "/{lightId}", produces = RestConstants.APPLICATION_JSON)
     public ResponseEntity<DeviceDescriptor> findByDevicId(@PathVariable("lightId") String id){
         
     	Optional<DeviceDescriptor> descriptor = deviceRepository.findById(id);
@@ -103,7 +102,7 @@ public class DeviceManagerController {
         return new ResponseEntity<>(descriptor.get(), null, HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/{lightId}", produces = APPLICATION_JSON)
+    @DeleteMapping(value = "/{lightId}", produces = RestConstants.APPLICATION_JSON)
     public ResponseEntity<String> deleteDeviceById(@PathVariable("lightId") String id){
         
     	Optional<DeviceDescriptor> deleted = deviceRepository.findById(id);

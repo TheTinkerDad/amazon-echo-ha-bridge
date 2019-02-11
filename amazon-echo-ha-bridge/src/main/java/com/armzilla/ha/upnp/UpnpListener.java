@@ -4,12 +4,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import com.armzilla.ha.ConfigChecker;
 
 import java.io.IOException;
 import java.net.*;
@@ -22,8 +25,11 @@ import org.apache.http.conn.util.*;
  */
 @Component
 public class UpnpListener {
+	
 	private Logger log = LoggerFactory.getLogger(UpnpListener.class);
+	
 	private static final int UPNP_DISCOVERY_PORT = 1900;
+	
 	private static final String UPNP_MULTICAST_ADDRESS = "239.255.255.250";
 
 	@Value("${upnp.response.port}")
@@ -43,10 +49,13 @@ public class UpnpListener {
 	@Autowired
 	private ApplicationContext applicationContext;
 
+	@Autowired
+	private ConfigChecker configChecker;
+	
 	@EventListener(ApplicationReadyEvent.class) // Start listening when the application finished booting
 	public void startListening(){
 
-		if (disable)  {
+		if (!configChecker.isConfigurationCorrect() || disable)  {
 			return;
 		}
 		
@@ -92,8 +101,7 @@ public class UpnpListener {
 
 		}  catch (IOException e) {
 			log.error("UpnpListener encountered an error. Shutting down", e);
-			ConfigurableApplicationContext context = (ConfigurableApplicationContext) UpnpListener.this.applicationContext;
-			context.close();
+			SpringApplication.exit(applicationContext);			
 
 		}
 		log.info("UPNP Discovery Listener Stopped");
