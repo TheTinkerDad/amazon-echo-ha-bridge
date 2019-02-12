@@ -148,8 +148,9 @@ public class HueMulatorController {
 	@PutMapping(value = "/{userId}/lights/{lightId}/state")
 	public ResponseEntity<String> stateChange(
 			@PathVariable(value = "lightId") String lightId,
-			@PathVariable(value = "userId") String userId, HttpServletRequest request,
-			@RequestBody String requestString) {
+			@PathVariable(value = "userId") String userId, HttpServletRequest request) {
+		
+    	String requestString = request.getParameterNames().nextElement();
 		
 		log.info("hue state change requested: " + userId + " from " + request.getRemoteAddr());
 		log.info("hue stage change body: " + requestString);
