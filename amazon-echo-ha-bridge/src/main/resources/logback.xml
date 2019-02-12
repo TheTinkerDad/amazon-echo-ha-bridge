@@ -8,6 +8,7 @@
 	</appender>
 
 	<logger name="com.armzilla.ha" level="info" />
+	<!-- logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="debug" /-->
 
 	<root level="info">
 		<appender-ref ref="STDOUT" />
